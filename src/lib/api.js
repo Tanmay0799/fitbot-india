@@ -38,8 +38,11 @@ export async function askFitBot(messages, langName) {
   
   const data = await res.json()
   
-  // Cleaned extraction using standard arrays without chaining typos
-  const full = data.candidates?.[0]?.content?.parts?.[0]?.text || 'Kuch issue hai. Dobara try karo!'
+  // Explicit data parsing structure bypassing all chaining symbols
+  let full = 'Kuch issue hai. Dobara try karo!';
+  if (data && data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts && data.candidates[0].content.parts[0]) {
+    full = data.candidates[0].content.parts[0].text || full;
+  }
   
   const trackMatch = full.match(/TRACK:(\{[^}]+\})/)
   const track = trackMatch ? (() => { try { return JSON.parse(trackMatch[1]) } catch { return null } })() : null
