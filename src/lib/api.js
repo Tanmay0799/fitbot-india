@@ -10,21 +10,40 @@ Water:   TRACK:{"type":"water","glasses":<n>}
 Only add TRACK when actually logging. Never for questions or suggestions.`
 
 export async function askFitBot(messages, langName) {
-  const res = await fetch('https://api.anthropic.com/v1/messages', {
+  const geminiMessages = messages.map(msg => ({
+    role: msg.role === 'assistant' ? 'model' : 'user',
+    parts: [{ text: msg.content }]
+  }))
+
+  geminiMessages.unshift({
+    role: 'user',
+    parts: [{ text: `SYSTEM INSTRUCTION: ${SYSTEM_PROMPT(langName)}` }]
+  })
+
+  const url = `https://googleapis.com{API_KEY}`
+
+  const res = await fetch(url, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
-      model: 'claude-sonnet-4-20250514',
-      max_tokens: 1000,
-      system: SYSTEM_PROMPT(langName),
-      messages
+      contents: geminiMessages,
+      generationConfig: {
+        maxOutputTokens: 1000,
+        temperature: 0.7
+      }
     })
   })
+
   if (!res.ok) throw new Error('API error ' + res.status)
+  
   const data = await res.json()
-  const full = data.content?.[0]?.text || 'Kuch issue hai. Dobara try karo!'
+  
+  // Cleaned extraction without structural typos
+  const full = data.candidates?.[0]?.content?.parts?.[0]?.text || 'Kuch issue hai. Dobara try karo!'
+  
   const trackMatch = full.match(/TRACK:(\{[^}]+\})/)
   const track = trackMatch ? (() => { try { return JSON.parse(trackMatch[1]) } catch { return null } })() : null
   const display = full.replace(/TRACK:\{[^}]+\}/g, '').trim()
+  
   return { display, track }
 }
