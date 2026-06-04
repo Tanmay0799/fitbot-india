@@ -38,7 +38,7 @@ export async function askFitBot(messages, langName) {
   
   const data = await res.json()
   
-  // Cleaned extraction without structural typos
+  // Cleaned extraction using standard arrays without chaining typos
   const full = data.candidates?.[0]?.content?.parts?.[0]?.text || 'Kuch issue hai. Dobara try karo!'
   
   const trackMatch = full.match(/TRACK:(\{[^}]+\})/)
