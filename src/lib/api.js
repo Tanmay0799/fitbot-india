@@ -20,7 +20,7 @@ export async function askFitBot(messages, langName) {
     parts: [{ text: "SYSTEM INSTRUCTION: " + SYSTEM_PROMPT(langName) }]
   })
 
-  // Fixed standard URL text connection format to prevent name resolution crashes
+  // Fixed full explicit domain address endpoint string layout
   const url = "https://googleapis.com" + API_KEY
 
   const res = await fetch(url, {
@@ -39,6 +39,7 @@ export async function askFitBot(messages, langName) {
   
   const data = await res.json()
   
+  // Safely extract message content string from Google's response object structure
   let full = 'Kuch issue hai. Dobara try karo!';
   if (data && data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts && data.candidates[0].content.parts[0]) {
     full = data.candidates[0].content.parts[0].text || full;
