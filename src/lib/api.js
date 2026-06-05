@@ -17,10 +17,11 @@ export async function askFitBot(messages, langName) {
 
   geminiMessages.unshift({
     role: 'user',
-    parts: [{ text: `SYSTEM INSTRUCTION: ${SYSTEM_PROMPT(langName)}` }]
+    parts: [{ text: "SYSTEM INSTRUCTION: " + SYSTEM_PROMPT(langName) }]
   })
 
-  const url = `https://googleapis.com{API_KEY}`
+  // Fixed standard URL text connection format to prevent name resolution crashes
+  const url = "https://googleapis.com" + API_KEY
 
   const res = await fetch(url, {
     method: 'POST',
@@ -38,7 +39,6 @@ export async function askFitBot(messages, langName) {
   
   const data = await res.json()
   
-  // Explicit data parsing structure bypassing all chaining symbols
   let full = 'Kuch issue hai. Dobara try karo!';
   if (data && data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts && data.candidates[0].content.parts[0]) {
     full = data.candidates[0].content.parts[0].text || full;
