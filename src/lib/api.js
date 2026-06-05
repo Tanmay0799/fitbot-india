@@ -20,8 +20,10 @@ export async function askFitBot(messages, langName) {
     parts: [{ text: "SYSTEM INSTRUCTION: " + SYSTEM_PROMPT(langName) }]
   })
 
-  // Fixed full explicit domain address endpoint string layout
-  const url = "https://googleapis.com" + API_KEY
+  // Built-in query formatting to force the code to treat your "AQ." key safely as text
+  const cleanKey = String(API_KEY).trim()
+  const baseEndpoint = "https://googleapis.com"
+  const url = baseEndpoint + "?key=" + encodeURIComponent(cleanKey)
 
   const res = await fetch(url, {
     method: 'POST',
@@ -39,10 +41,9 @@ export async function askFitBot(messages, langName) {
   
   const data = await res.json()
   
-  // Safely extract message content string from Google's response object structure
   let full = 'Kuch issue hai. Dobara try karo!';
   if (data && data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts && data.candidates[0].content.parts[0]) {
-    full = data.candidates[0].content.parts[0].text || full;
+    full = data.candidates[0].content.parts[0].text || full
   }
   
   const trackMatch = full.match(/TRACK:(\{[^}]+\})/)
